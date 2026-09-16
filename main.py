@@ -1,3 +1,5 @@
+import os
+import os
 import time
 from collections import deque
 import cv2
@@ -11,7 +13,7 @@ def main():
     print("[INFO] Loading YOLOv8 Pose model...")
     model = YOLO(MODEL_PATH)
 
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(1)
     if not cap.isOpened():
         print("[ERROR] Could not open webcam.")
         return
@@ -21,6 +23,7 @@ def main():
     focus_start_time = time.time()
     slouch_start_time = None
     prev_time = time.time()
+    last_alarm_time = 0
 
     print("\n--- Controls ---")
     print("Press 'c' while sitting upright to calibrate baseline.")
@@ -63,7 +66,7 @@ def main():
                     if slouch_start_time is None:
                         slouch_start_time = time.time()
                 else:
-                    status_text = f"GOOD POSTURE ({int(ratio_pct * 100)}%)"
+                    status_text = f"LOCKED IN POSTURE ({int(ratio_pct * 100)}%)"
                     status_color = (0, 255, 0)
                     slouch_start_time = None
             else:
@@ -86,9 +89,15 @@ def main():
         cv2.putText(frame, f"Focus: {focus_str}", (w - 280, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2, cv2.LINE_AA)
         cv2.putText(frame, f"FPS: {int(fps)}", (w - 100, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 255), 2, cv2.LINE_AA)
 
+        # if slouch lasts longer than 3.0 seconds 
         if slouch_start_time and (current_time - slouch_start_time > 3.0):
             cv2.rectangle(frame, (0, 0), (w, h), (0, 0, 255), 6)
             cv2.putText(frame, "CORRECT POSTURE", (w // 2 - 180, h - 40), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0, 0, 255), 3, cv2.LINE_AA)
+        
+        #trigger an alarm sound and a voice 
+            if current_time - last_alarm_time > 7.0:
+                os.system("(afplay /System/Library/Sounds/Glass.aiff; say 'Evelyn lock in!') &")
+                last_alarm_time = current_time
 
         cv2.imshow("Posture & Focus Monitor", frame)
 
