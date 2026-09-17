@@ -1,4 +1,4 @@
-# 🖥️ Computer Vision Posture Monitor 
+# 🖥️  Computer Vision Posture Monitor 
 
 An end-to-end computer vision application that tracks desk ergonomics and focus time in real-time. Built with a YOLOv8 pose estimation model and OpenCV, this tool analyzes webcam feeds to detect 'lazy posture' and track continuous focus. Runs strictly locally to ensure complete data privacy.
 
